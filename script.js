@@ -4,6 +4,7 @@ const cidadeNomeEl = document.getElementById("name");
 const area = document.getElementById('area');
 async function buscarclima(cidade = "") {
     try {
+        document.getElementById("loading").style.display = "block";
         const resposta = await fetch(`https://wttr.in/${cidade}?format=j1`);
         const dados = await resposta.json();
 
@@ -20,6 +21,8 @@ async function buscarclima(cidade = "") {
     } catch (erro) {
         console.error("Erro ao buscar clima:", erro);
         alert("Não foi possível encontrar o clima para essa cidade.");
+     } finally {
+        document.getElementById("loading").style.display = "none";
     }
     
 }
@@ -33,10 +36,11 @@ function buscarCidade() {
     area.style.display = 'block'
     if (cidadeInput !== "") {
         buscarclima(cidadeInput);
-        cidadeInput = ''
+        document.getElementById("cidade").value = "";
     } else {
         alert("Por favor, digite o nome de uma cidade.");
-        cidadeInput = ''
+        document.getElementById("cidade").value = "";
+        area.style.display = 'none'
     }
     
 }
