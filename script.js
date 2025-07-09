@@ -2,14 +2,28 @@ const temperatura = document.getElementById("temp");
 const temperaturaf = document.getElementById("tempf");
 const cidadeNomeEl = document.getElementById("name");
 const area = document.getElementById('area');
+const loadingEl = document.getElementById("loading");
+const cidadeInputEl = document.getElementById("cidade");
+
+
+area.style.display = 'none';
+loadingEl.style.display = 'none';
+
+
 async function buscarclima(cidade = "") {
     try {
-        document.getElementById("loading").style.display = "block";
+        area.style.display = "none";
+        loadingEl.style.display = "block"; 
+
         const resposta = await fetch(`https://wttr.in/${cidade}?format=j1`);
         const dados = await resposta.json();
 
-        const condicoesatuais = dados.current_condition[0];
+        
+        if (!dados.current_condition || !dados.nearest_area) {
+            throw new Error("Dados de clima não encontrados.");
+        }
 
+        const condicoesatuais = dados.current_condition[0];
         const celsius = condicoesatuais.temp_C;
         const fahrenheit = condicoesatuais.temp_F;
         const cidadeNome = dados.nearest_area[0].areaName[0].value;
@@ -18,29 +32,35 @@ async function buscarclima(cidade = "") {
         temperaturaf.textContent = fahrenheit;
         cidadeNomeEl.textContent = cidadeNome;
 
+        area.style.display = "block"; 
     } catch (erro) {
         console.error("Erro ao buscar clima:", erro);
         alert("Não foi possível encontrar o clima para essa cidade.");
-     } finally {
-        document.getElementById("loading").style.display = "none";
+        area.style.display = "none"; 
+    } finally {
+        loadingEl.style.display = "none";
     }
-    
 }
-
-
-buscarclima();
 
 
 function buscarCidade() {
-    const cidadeInput = document.getElementById("cidade").value.trim();
-    area.style.display = 'block'
+    const cidadeInput = cidadeInputEl.value.trim();
+
     if (cidadeInput !== "") {
         buscarclima(cidadeInput);
-        document.getElementById("cidade").value = "";
+        cidadeInputEl.value = "";
     } else {
         alert("Por favor, digite o nome de uma cidade.");
-        document.getElementById("cidade").value = "";
-        area.style.display = 'none'
+        area.style.display = 'none';
+        cidadeInputEl.value = "";
     }
-    
 }
+
+
+cidadeInputEl.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+        buscarCidade();
+    }
+});
+
+
